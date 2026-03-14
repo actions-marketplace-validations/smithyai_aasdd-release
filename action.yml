@@ -1,0 +1,72 @@
+name: AASDD Release
+description: Reads the spec version from an AASDD spec.md and optionally validates it against the current Git tag.
+author: smithyai
+
+branding:
+  icon: tag
+  color: blue
+
+inputs:
+  spec-path:
+    description: >
+      Path to the spec.md file, relative to the workspace root.
+      AASDD does not prescribe where a spec lives — set this to wherever
+      your spec.md resides. Defaults to spec.md at the workspace root.
+    required: false
+    default: spec.md
+  enforce-tag-match:
+    description: >
+      When true, fails if the current Git tag does not match the spec version.
+      The tag must be exactly "v<spec-version>" (e.g. tag v1.2.3 for spec version 1.2.3).
+    required: false
+    default: "false"
+
+outputs:
+  version:
+    description: The spec version parsed from spec.md (e.g. "1.2.3", without a leading "v").
+    value: ${{ steps.parse.outputs.version }}
+
+runs:
+  using: composite
+  steps:
+    - name: Parse spec version
+      id: parse
+      shell: bash
+      run: |
+        SPEC_PATH="${{ github.workspace }}/${{ inputs.spec-path }}"
+
+        if [[ ! -f "$SPEC_PATH" ]]; then
+          echo "::error::spec.md not found at $SPEC_PATH"
+          exit 1
+        fi
+
+        VERSION=$(grep -m1 '^\*\*Version:\*\*' "$SPEC_PATH" | sed 's/\*\*Version:\*\* *//')
+
+        if [[ -z "$VERSION" ]]; then
+          echo "::error::No '**Version:**' line found in $SPEC_PATH"
+          exit 1
+        fi
+
+        if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          echo "::error::Spec version '$VERSION' is not valid semver (expected X.Y.Z)"
+          exit 1
+        fi
+
+        echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+        echo "Spec version: $VERSION"
+
+    - name: Validate tag matches spec version
+      if: inputs.enforce-tag-match == 'true'
+      shell: bash
+      run: |
+        SPEC_VERSION="${{ steps.parse.outputs.version }}"
+        TAG="${GITHUB_REF_NAME}"
+
+        EXPECTED_TAG="v${SPEC_VERSION}"
+
+        if [[ "$TAG" != "$EXPECTED_TAG" ]]; then
+          echo "::error::Git tag '$TAG' does not match spec version '$SPEC_VERSION' (expected tag '$EXPECTED_TAG')"
+          exit 1
+        fi
+
+        echo "Tag $TAG matches spec version $SPEC_VERSION"
