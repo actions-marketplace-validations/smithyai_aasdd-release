@@ -17,15 +17,15 @@ A GitHub Action that reads the spec version from an [AASDD](https://github.com/s
 
 ## Inputs
 
-| Input | Required | Default | Description |
-| --- | --- | --- | --- |
-| `spec-path` | No | `spec.md` | Path to the `spec.md` file, relative to the workspace root. AASDD does not prescribe where a spec lives — set this to wherever your `spec.md` resides. |
-| `enforce-tag-match` | No | `false` | When `true`, fails if the Git tag does not match the spec version. The tag must be `v<spec-version>` (e.g. tag `v1.2.3` for spec version `1.2.3`). |
+| Input               | Required | Default   | Description                                                                                                                                            |
+| ------------------- | -------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `spec-path`         | No       | `spec.md` | Path to the `spec.md` file, relative to the workspace root. AASDD does not prescribe where a spec lives — set this to wherever your `spec.md` resides. |
+| `enforce-tag-match` | No       | `false`   | When `true`, fails if the Git tag does not match the spec version. The tag must be `v<spec-version>` (e.g. tag `v1.2.3` for spec version `1.2.3`).     |
 
 ## Outputs
 
-| Output | Description |
-| --- | --- |
+| Output    | Description                                                                   |
+| --------- | ----------------------------------------------------------------------------- |
 | `version` | The spec version parsed from `spec.md` (e.g. `1.2.3`, without a leading `v`). |
 
 ## Example: full release workflow with GoReleaser

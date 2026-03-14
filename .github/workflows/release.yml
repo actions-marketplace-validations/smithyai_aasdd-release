@@ -14,6 +14,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Validate spec version
+        uses: ./
+        with:
+          enforce-tag-match: true
+
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:

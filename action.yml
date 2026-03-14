@@ -40,7 +40,7 @@ runs:
           exit 1
         fi
 
-        VERSION=$(grep -m1 '^\*\*Version:\*\*' "$SPEC_PATH" | sed 's/\*\*Version:\*\* *//')
+        VERSION=$(grep -m1 '^\*\*Version:\*\*' "$SPEC_PATH" | sed 's/\*\*Version:\*\* *//; s/[[:space:]]*$//')
 
         if [[ -z "$VERSION" ]]; then
           echo "::error::No '**Version:**' line found in $SPEC_PATH"
